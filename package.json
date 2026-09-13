@@ -1,0 +1,24 @@
+{
+  "name": "ilo-suite",
+  "version": "1.0.0",
+  "description": "iLO Suite - Desktop App",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "app": "electron .",
+    "dev": "electron .",
+    "pack": "electron-packager . \"iLO Suite\" --platform=win32 --arch=x64 --icon=icon.ico --out=dist --overwrite"
+  },
+  "keywords": [
+    "ilo",
+    "ilo3",
+    "hpe",
+    "remote-console",
+    "windows11"
+  ],
+  "author": "HPE iLO Suite",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.1"
+  }
+}

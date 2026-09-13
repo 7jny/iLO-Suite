@@ -1,0 +1,6 @@
+# Security properties for HP iLO 3 / legacy BMC communication
+# Re-enables TLSv1, TLSv1.1, RC4, MD5, 3DES, and legacy RSA keys
+jdk.tls.disabledAlgorithms=
+jdk.certpath.disabledAlgorithms=
+jdk.tls.legacyAlgorithms=
+sun.security.ssl.allowUnsafeRenegotiation=true

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iLO Suite</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="stylesheet" href="app.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation / Titlebar -->
+    <header class="topbar">
+      <div class="topbar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            <line x1="10" y1="6" x2="18" y2="6"></line>
+            <line x1="10" y1="18" x2="18" y2="18"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">iLO Suite</span>
+        </div>
+      </div>
+
+      <!-- Active Server Status Header Pill (Center) -->
+      <div class="server-status-strip" id="serverStatusStrip">
+        <div class="status-indicator-pill offline" id="connectionPill">
+          <span class="status-dot"></span>
+          <span class="status-label" id="connectionLabel">Not Connected</span>
+        </div>
+        <div class="hostnames-badge" id="topHostnamesBadge" style="display: none;">
+          <span class="host-pill host-server" id="topServerHost" title="Server OS Hostname">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span id="topServerHostVal">Server</span>
+          </span>
+          <span class="host-sep">/</span>
+          <span class="host-pill host-ilo" id="topIloHost" title="iLO Network Name &amp; IP">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            <span id="topIloHostVal">iLO</span>
+          </span>
+        </div>
+        <div class="status-badge power-badge" id="powerStatusBadge" style="display: none;">
+          <span class="power-dot"></span>
+          <span id="powerLabel">OFF</span>
+        </div>
+        <button class="btn btn-sm" id="uidStatusBtn" title="UID Identification Light" style="display: none;">
+          <span class="uid-dot"></span>
+          <span id="uidLabel">UID OFF</span>
+        </button>
+      </div>
+
+      <!-- Quick Actions / Disconnect -->
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm" id="quickConnectBtn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"></path>
+          </svg>
+          Connect
+        </button>
+        <button class="btn btn-danger btn-sm" id="disconnectBtn" style="display: none;">
+          Disconnect
+        </button>
+      </div>
+    </header>
+
+    <div class="main-wrapper">
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar">
+        <div class="nav-group-label">MANAGEMENT</div>
+        <ul class="nav-list">
+          <li class="nav-item active" data-tab="tab-dashboard">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Overview & Status</span>
+          </li>
+          <li class="nav-item" data-tab="tab-console" data-require-connected="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span>Remote Console</span>
+            <span class="badge-accent">iLO 3</span>
+          </li>
+          <li class="nav-item" data-tab="tab-vmedia" data-require-connected="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span>Virtual Media (ISO)</span>
+          </li>
+          <li class="nav-item" data-tab="tab-boot" data-require-connected="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+            <span>Boot Manager</span>
+          </li>
+          <li class="nav-item" data-tab="tab-power" data-require-connected="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+              <line x1="12" y1="2" x2="12" y2="12"></line>
+            </svg>
+            <span>Power Control</span>
+          </li>
+          <li class="nav-item" data-tab="tab-webgui" data-require-connected="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>iLO Web Interface</span>
+          </li>
+        </ul>
+
+        <div class="nav-group-label" style="margin-top: auto;">CONFIGURATION</div>
+        <ul class="nav-list">
+          <li class="nav-item" data-tab="tab-profiles">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Server Profiles</span>
+          </li>
+          <li class="nav-item" data-tab="tab-logs">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 17 10 11 4 5"></polyline>
+              <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            <span>System Logs</span>
+          </li>
+        </ul>
+
+        <div class="sidebar-footer">
+          <div class="ssl-badge">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>TLS 1.0 Bridge Active</span>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="content-container">
+
+        <!-- ==================== TAB: DASHBOARD ==================== -->
+        <section class="tab-pane active" id="tab-dashboard">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">Server Overview</h1>
+              <p class="tab-subtitle">Hardware status, telemetry, and quick actions for HP ProLiant servers</p>
+            </div>
+          </div>
+
+          <!-- Connection Banner if not connected -->
+          <div class="card" id="connectCard">
+            <div class="card-header">
+              <div class="card-title">Connect to iLO 3 Server</div>
+              <span class="badge badge-info">iLO 3</span>
+            </div>
+            <div class="card-body">
+              <form id="connectForm" class="grid-form">
+                <div class="form-group">
+                  <label for="hostInput">iLO Hostname or IP Address</label>
+                  <input type="text" id="hostInput" class="input" placeholder="e.g. 192.168.1.150 or ilo-server.local" required>
+                </div>
+                <div class="form-group">
+                  <label for="portInput">Port</label>
+                  <input type="number" id="portInput" class="input" value="443" min="1" max="65535">
+                </div>
+                <div class="form-group">
+                  <label for="userInput">Username</label>
+                  <input type="text" id="userInput" class="input" value="Administrator" required>
+                </div>
+                <div class="form-group">
+                  <label for="passInput">Password</label>
+                  <input type="password" id="passInput" class="input" placeholder="iLO Password" required>
+                </div>
+                <div class="form-group span-2" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-top: 6px;">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="saveProfileCheck" checked>
+                    <span class="checkmark"></span>
+                    Save to profiles for quick reconnect
+                  </label>
+                  <button type="submit" class="btn btn-primary" id="submitConnectBtn">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    Connect to Server
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Connected Dashboard View (Initially hidden) -->
+          <div id="connectedDashboard" style="display: none;">
+            <!-- System Identity & Dual Hostnames Bar -->
+            <div class="identity-bar">
+              <div class="identity-item">
+                <span class="identity-label">Server OS Hostname</span>
+                <span class="identity-val" id="statServerName" style="color: #38bdf8;">--</span>
+              </div>
+              <div class="identity-item">
+                <span class="identity-label">iLO Hostname &amp; IP</span>
+                <span class="identity-val" id="statIloHost">--</span>
+              </div>
+              <div class="identity-item">
+                <span class="identity-label">Server Hardware Model</span>
+                <span class="identity-val" id="statModel">HP ProLiant Server</span>
+              </div>
+              <div class="identity-item">
+                <span class="identity-label">Serial Number</span>
+                <span class="identity-val" id="statSerial">--</span>
+              </div>
+              <div class="identity-item">
+                <span class="identity-label">Operating System</span>
+                <span class="identity-val" id="statOsName" style="color: #4ade80;">--</span>
+              </div>
+              <div class="identity-item">
+                <span class="identity-label">System ROM</span>
+                <span class="identity-val" id="statRom">--</span>
+              </div>
+              <div class="identity-item">
+                <span class="identity-label">iLO Firmware</span>
+                <span class="identity-val" id="statFirmware">--</span>
+              </div>
+            </div>
+
+            <!-- Core Hardware Telemetry Grid (RAM, CPU, Power, Health) -->
+            <div class="stats-grid">
+              <!-- Card 1: Memory (RAM) Specs -->
+              <div class="stat-card">
+                <div class="stat-label">System Memory (RAM)</div>
+                <div class="stat-value" id="statRamTotal">-- GB RAM</div>
+                <div class="stat-sub">
+                  <span id="statRamSticks" style="font-weight: 600; color: #ffffff;">-- sticks</span> installed &bull; <span id="statRamFree" style="color: #38bdf8;">-- free slots</span>
+                </div>
+                <div class="ram-usage-bar-container">
+                  <div class="ram-usage-bar" id="statRamBar" style="width: 0%;"></div>
+                </div>
+                <span id="statRamSpeed" style="font-size: 11px; color: var(--text-secondary); margin-top: 6px; display: block;">DDR3 -- MHz</span>
+              </div>
+
+              <!-- Card 2: Processor (CPU) Specs -->
+              <div class="stat-card">
+                <div class="stat-label">Processors (CPU)</div>
+                <div class="stat-value" id="statCpuCount">-- Processors</div>
+                <div class="stat-sub" id="statCpuCores" style="font-weight: 600; color: #ffffff;">-- Cores / -- Threads</div>
+                <span id="statCpuSpeed" style="font-size: 11px; color: var(--text-secondary); margin-top: 6px; display: block;">-- MHz Clock Speed</span>
+              </div>
+
+              <!-- Card 3: Power Consumption & Power Status -->
+              <div class="stat-card stat-power-card">
+                <div class="stat-label">Chassis Power</div>
+                <div class="stat-value" id="statPowerReading">-- Watts</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                  <span class="status-badge power-badge" id="statPower">
+                    <span class="power-dot"></span>
+                    <span id="statPowerBadgeText">OFF</span>
+                  </span>
+                  <span id="statPsuStatus" style="font-size: 11px; color: var(--text-secondary);">-- PSUs</span>
+                </div>
+                <div class="stat-actions" style="margin-top: 10px;">
+                  <button class="btn btn-xs btn-success" id="dashboardPowerOnBtn">Power On</button>
+                  <button class="btn btn-xs btn-danger" id="dashboardPowerOffBtn">Power Off</button>
+                  <button class="btn btn-xs btn-outline" id="dashboardPowerPulseBtn">Power Button</button>
+                  <button class="btn btn-xs btn-outline" id="dashboardPowerResetBtn">Reset</button>
+                </div>
+              </div>
+
+              <!-- Card 4: Chassis Health, Fans & Temperatures -->
+              <div class="stat-card">
+                <div class="stat-label">Health &amp; Cooling</div>
+                <div class="stat-value" id="statHealthSummary" style="color: #4ade80;">System Healthy</div>
+                <div class="stat-sub" id="statFans" style="font-weight: 600; color: #ffffff;">6/6 Fans OK (Redundant)</div>
+                <span id="statTemps" style="font-size: 11px; color: var(--text-secondary); margin-top: 6px; display: block;">Ambient --&deg;C &bull; CPU --&deg;C</span>
+              </div>
+            </div>
+
+            <!-- DIMM Memory Slots Topology -->
+            <div class="card" id="dimmSlotsCard">
+              <div class="card-header">
+                <div class="card-title">Memory DIMM Slot Configuration</div>
+                <span class="badge badge-info" id="dimmSlotCountBadge">18 Total Slots</span>
+              </div>
+              <div class="card-body">
+                <p class="card-text" style="margin-bottom: 12px;">
+                  Physical memory module population across CPU sockets and channels:
+                </p>
+                <div class="dimm-grid" id="dimmGrid">
+                  <!-- Dynamically populated memory slots -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Secondary Telemetry: Disks & Network -->
+            <div class="grid-2col">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Storage &amp; Drive Bays</div>
+                  <span class="badge badge-neutral" id="drivesCountBadge">Disks</span>
+                </div>
+                <div class="card-body">
+                  <div id="drivesList" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Dynamically populated drives -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Network Interfaces (NICs)</div>
+                  <span class="badge badge-neutral">Gigabit Ethernet</span>
+                </div>
+                <div class="card-body">
+                  <div id="nicsList" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Dynamically populated NICs -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Server Telemetry & Quick UID Control -->
+            <div class="card" style="margin-top: 14px;">
+              <div class="card-header">
+                <div class="card-title">Server Telemetry &amp; UID Control</div>
+              </div>
+              <div class="card-body">
+                <div class="telemetry-item">
+                  <div class="telemetry-info">
+                    <div class="telemetry-title">UID LED (Identification Light)</div>
+                    <div class="telemetry-desc">Toggles blue status light on front and rear panels</div>
+                  </div>
+                  <button class="btn btn-outline btn-sm" id="dashToggleUidBtn">
+                    <span class="uid-indicator-dot"></span>
+                    <span id="dashUidText">Turn UID On</span>
+                  </button>
+                </div>
+
+                <div class="telemetry-item">
+                  <div class="telemetry-info">
+                    <div class="telemetry-title">iLO Web Interface (Legacy Bridge)</div>
+                    <div class="telemetry-desc">Direct access to original portal via local high-speed proxy</div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" id="dashOpenWebBtn">Open in Browser</button>
+                </div>
+
+                <div class="telemetry-item">
+                  <div class="telemetry-info">
+                    <div class="telemetry-title">Security &amp; Protocols</div>
+                    <div class="telemetry-desc">Windows 11 SSL Bridge active (TLS 1.0, ALL:@SECLEVEL=0)</div>
+                  </div>
+                  <span class="badge badge-success">Active &amp; Compatible</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Connections / Quick Connect on Main Page -->
+          <div class="card" id="recentConnectionsCard" style="margin-top: 14px;">
+            <div class="card-header">
+              <div class="card-title">Recent Connections</div>
+              <span class="card-subtitle-badge" id="recentConnectionsBadge">Saved Servers</span>
+            </div>
+            <div class="card-body">
+              <div class="recent-connections-grid" id="recentConnectionsGrid">
+                <!-- Dynamically populated from saved profiles -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB: REMOTE CONSOLE ==================== -->
+        <section class="tab-pane" id="tab-console">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">Remote Console</h1>
+              <p class="tab-subtitle">Hardware KVM console via HPE Integrated Remote Console & TLS 1.0 Bridge</p>
+            </div>
+          </div>
+
+          <div style="max-width: 780px;">
+            <!-- Console Option 1: HPE Standalone Console (Recommended) -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">HPE Standalone Remote Console</div>
+                  <div class="card-subtitle">Official HPE native hardware console (HPLOCONS) tunneled through TLS 1.0 bridge</div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <span class="badge badge-success">Recommended</span>
+                  <span class="badge" id="hploconsStatusBadge">Installed</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                  Direct hardware console using the official HPE Lights-Out Standalone Remote Console (HPLOCONS) tunneled through the local TLS 1.0 bridge (Port 8443).
+                </p>
+
+                <div class="form-actions" style="margin-top: 18px; margin-bottom: 20px;">
+                  <button class="btn btn-primary btn-lg" id="launchHploconsBtn" style="font-size: 15px; padding: 12px 28px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Launch Standalone Console (Recommended)
+                  </button>
+                </div>
+
+                <div class="subcard" id="bridgeCopySubcard">
+                  <div class="subcard-header">
+                    <div class="subcard-title">Bridge Connection Details</div>
+                    <span class="badge badge-neutral" id="bridgeActiveBadge">TLS Bridge Ready</span>
+                  </div>
+                  <div class="subcard-desc">
+                    If you prefer to connect manually inside HPLOCONS, use the HTTPS Bridge Target address:
+                  </div>
+
+                  <div class="bridge-copy-container">
+                    <div class="copy-field-group">
+                      <div class="copy-label">HPLOCONS HTTPS Target (TLS 1.0 Bridge)</div>
+                      <div class="copy-input-row">
+                        <input type="text" class="input input-sm copy-target-input" id="bridgeIpDisplay" value="127.0.0.1:8443" readonly>
+                        <button type="button" class="btn btn-secondary btn-sm copy-btn" id="copyBridgeIpBtn" title="Copy Bridge Target">
+                          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                          <span id="copyBridgeIpText">Copy Bridge IP</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="copy-field-group" style="margin-top: 8px;">
+                      <div class="copy-label">Direct Server Address</div>
+                      <div class="copy-input-row">
+                        <input type="text" class="input input-sm copy-target-input" id="serverIpDisplay" value="192.168.1.134:443" readonly>
+                        <button type="button" class="btn btn-outline btn-sm copy-btn" id="copyServerIpBtn" title="Copy Server Target">
+                          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                          <span id="copyServerIpText">Copy Server IP</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Console Option 2: Java 21 Console -->
+            <div class="card" style="margin-top: 16px;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Java Remote Console</div>
+                  <div class="card-subtitle">Self-contained Java 21 desktop client with native TLS 1.0 handshake and KVM acceleration</div>
+                </div>
+                <span class="badge badge-neutral">Java 21 DVC</span>
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                  Direct hardware console running locally via Java 21 without requiring browser plugins or security exceptions.
+                </p>
+                <div class="form-actions" style="margin-top: 16px;">
+                  <button class="btn btn-secondary btn-md" id="launchJavaConsoleBtn" style="font-size: 14px; padding: 10px 22px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    Launch Java Console
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="console-output-box" id="consoleLaunchFeedback" style="display: none; margin-top: 16px;"></div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB: VIRTUAL MEDIA ==================== -->
+        <section class="tab-pane" id="tab-vmedia">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">Virtual Media (ISO Mounter)</h1>
+              <p class="tab-subtitle">Mount local ISO files as virtual CD/DVD-ROM drives on the remote server</p>
+            </div>
+          </div>
+
+          <div class="grid-2col">
+            <!-- Mount Form -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Mount ISO Image</div>
+              </div>
+              <div class="card-body">
+                <form id="vmediaForm">
+                  <div class="form-group">
+                    <label for="isoPathInput">Select ISO File on this PC</label>
+                    <div class="input-with-action">
+                      <input type="text" id="isoPathInput" class="input" placeholder="C:\ISOs\installer.iso" required>
+                      <button type="button" class="btn btn-secondary btn-sm" id="browseIsoBtn">Browse...</button>
+                    </div>
+                    <input type="file" id="hiddenIsoFileInput" accept=".iso,.img" style="display: none;">
+                    <span class="form-hint">Enter the absolute file path to the ISO on your Windows PC</span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="vmediaIpSelect">Local Network IP (HTTP Stream)</label>
+                    <select id="vmediaIpSelect" class="input select"></select>
+                    <span class="form-hint">The IP address on your LAN that the iLO server will connect to</span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="vmediaBootOption">Boot Option for Server</label>
+                    <select id="vmediaBootOption" class="input select">
+                      <option value="BOOT_ONCE">Boot Once on next restart</option>
+                      <option value="BOOT_ALWAYS">Boot Always from ISO</option>
+                      <option value="NO_BOOT">Connect without boot option</option>
+                    </select>
+                  </div>
+
+                  <div class="form-actions" style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" id="mountIsoBtn">
+                      Mount & Attach ISO
+                    </button>
+                    <button type="button" class="btn btn-danger" id="ejectIsoBtn">
+                      Eject Media
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Virtual Media Status -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Virtual Media Status</div>
+                <button class="btn btn-xs btn-outline" id="refreshVmediaBtn">Refresh</button>
+              </div>
+              <div class="card-body">
+                <div class="status-box-highlight">
+                  <div class="vmedia-status-pill offline" id="vmediaStatusPill">
+                    <span class="status-dot"></span>
+                    <span id="vmediaStatusText">No media mounted</span>
+                  </div>
+
+                  <div class="vmedia-details-grid" style="margin-top: 16px;">
+                    <div class="detail-row">
+                      <span class="detail-label">Mounted File:</span>
+                      <span class="detail-val" id="vmediaFileName">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Streaming URL:</span>
+                      <span class="detail-val mono" id="vmediaUrl">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Boot Mode:</span>
+                      <span class="detail-val" id="vmediaBootMode">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">File Size:</span>
+                      <span class="detail-val" id="vmediaFileSize">--</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB: BOOT MANAGER ==================== -->
+        <section class="tab-pane" id="tab-boot">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">Boot Order & One-Time Boot</h1>
+              <p class="tab-subtitle">Configure permanent boot order and trigger one-time boot targets for the next restart</p>
+            </div>
+          </div>
+
+          <!-- One-Time Boot Options -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">One-Time Boot Target (Next Restart)</div>
+              <span class="badge badge-info" id="currentOneTimeBadge">NORMAL</span>
+            </div>
+            <div class="card-body">
+              <p class="card-text">Click a tile to set the boot device for the upcoming server start:</p>
+              
+              <div class="boot-tiles-grid">
+                <button class="boot-tile" data-target="CDROM">
+                  <div class="boot-tile-title">CD / DVD-ROM</div>
+                  <div class="boot-tile-sub">Boot from Virtual Media or optical drive</div>
+                </button>
+
+                <button class="boot-tile" data-target="USB">
+                  <div class="boot-tile-title">USB Drive</div>
+                  <div class="boot-tile-sub">Boot from connected USB stick or drive</div>
+                </button>
+
+                <button class="boot-tile" data-target="HDD">
+                  <div class="boot-tile-title">Hard Drive (HDD)</div>
+                  <div class="boot-tile-sub">Boot from primary internal disk or array</div>
+                </button>
+
+                <button class="boot-tile" data-target="NETWORK">
+                  <div class="boot-tile-title">Network (PXE)</div>
+                  <div class="boot-tile-sub">Boot via PXE Network Boot</div>
+                </button>
+
+                <button class="boot-tile" data-target="BIOS">
+                  <div class="boot-tile-title">BIOS Setup</div>
+                  <div class="boot-tile-sub">Boot directly into BIOS Setup (F9 key)</div>
+                </button>
+
+                <button class="boot-tile" data-target="NORMAL">
+                  <div class="boot-tile-title">Default (Normal)</div>
+                  <div class="boot-tile-sub">Reset one-time boot to standard order</div>
+                </button>
+              </div>
+
+              <div id="oneTimeBootResult" style="margin-top: 14px; display: none;"></div>
+            </div>
+          </div>
+
+          <!-- Persistent Boot Order -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Permanent Boot Order (Persistent Boot Order)</div>
+              <button class="btn btn-xs btn-outline" id="refreshPersistentBootBtn">Reload</button>
+            </div>
+            <div class="card-body">
+              <p class="card-text">Reorder boot devices using the arrow buttons and save to server:</p>
+              
+              <div class="boot-order-list" id="bootOrderList">
+                <div class="loading-placeholder">Loading boot order...</div>
+              </div>
+
+              <div class="form-actions" style="margin-top: 16px;">
+                <button class="btn btn-primary" id="savePersistentBootBtn">
+                  Save Order to iLO
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB: POWER CONTROL ==================== -->
+        <section class="tab-pane" id="tab-power">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">Power &amp; Chassis Control</h1>
+              <p class="tab-subtitle">Hardware power switches, power cycling, and chassis identification (UID) light</p>
+            </div>
+          </div>
+
+          <!-- Live Power & Chassis Status Banner -->
+          <div class="power-header-banner">
+            <div class="power-header-stats">
+              <div class="power-header-stat">
+                <span class="stat-label">CURRENT POWER STATUS</span>
+                <span class="status-badge power-badge" id="pwrTabStatusBadge" style="margin-top: 4px; font-size: 13px; padding: 6px 14px;">
+                  <span class="power-dot"></span>
+                  <span id="pwrTabStatusText">OFF</span>
+                </span>
+              </div>
+              <div class="power-header-stat">
+                <span class="stat-label">POWER CONSUMPTION</span>
+                <span class="stat-val" id="pwrTabReading">-- Watts</span>
+              </div>
+              <div class="power-header-stat">
+                <span class="stat-label">POWER SUPPLIES</span>
+                <span class="stat-val" id="pwrTabPsus" style="font-size: 13px;">-- Installed</span>
+              </div>
+              <div class="power-header-stat">
+                <span class="stat-label">UID LED STATUS</span>
+                <span class="stat-val" id="pwrTabUidStatus" style="font-size: 13px; color: #38bdf8;">OFF</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Power Controls Grid -->
+          <div class="power-controls-grid">
+            <!-- Action 1: Momentary Power Button -->
+            <div class="power-btn-card">
+              <div>
+                <div class="power-btn-card-title">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                    <line x1="12" y1="2" x2="12" y2="12"></line>
+                  </svg>
+                  Momentary Press (Power Button)
+                </div>
+                <div class="power-btn-card-desc" style="margin-top: 6px;">
+                  Sends a short pulse on the server power button. Powers ON if off, or initiates graceful ACPI shutdown in the OS.
+                </div>
+              </div>
+              <button class="btn btn-outline" id="pwrMomentaryBtn">Press Power Button</button>
+            </div>
+
+            <!-- Action 2: Direct Power On -->
+            <div class="power-btn-card">
+              <div>
+                <div class="power-btn-card-title" style="color: #4ade80;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  Power On (Turn On)
+                </div>
+                <div class="power-btn-card-desc" style="margin-top: 6px;">
+                  Directly sends hardware power-on command to start the motherboard and boot the system.
+                </div>
+              </div>
+              <button class="btn btn-success" id="pwrOnBtn">Turn Server On</button>
+            </div>
+
+            <!-- Action 3: Graceful Power Off -->
+            <div class="power-btn-card">
+              <div>
+                <div class="power-btn-card-title" style="color: #f87171;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  Graceful Power Off
+                </div>
+                <div class="power-btn-card-desc" style="margin-top: 6px;">
+                  Signals the operating system to shut down cleanly and power down the chassis.
+                </div>
+              </div>
+              <button class="btn btn-danger" id="pwrOffBtn">Turn Server Off</button>
+            </div>
+
+            <!-- Action 4: System Reset (Warm Reboot) -->
+            <div class="power-btn-card">
+              <div>
+                <div class="power-btn-card-title" style="color: #facc15;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <polyline points="23 20 23 14 17 14"></polyline>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                  </svg>
+                  System Reset (Warm Reboot)
+                </div>
+                <div class="power-btn-card-desc" style="margin-top: 6px;">
+                  Triggers hardware reset line on the system board. Recommended if OS has hung or during troubleshooting.
+                </div>
+              </div>
+              <button class="btn btn-warning" id="pwrResetBtn">Trigger Reset</button>
+            </div>
+
+            <!-- Action 5: Cold Boot (Hard Power Cycle) -->
+            <div class="power-btn-card">
+              <div>
+                <div class="power-btn-card-title" style="color: #fb923c;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                  </svg>
+                  Cold Boot (Power Cycle)
+                </div>
+                <div class="power-btn-card-desc" style="margin-top: 6px;">
+                  Instantly cuts DC power to the motherboard and automatically powers the server back on.
+                </div>
+              </div>
+              <button class="btn btn-warning" id="pwrColdBootBtn">Cold Boot Server</button>
+            </div>
+
+            <!-- Action 6: Press and Hold (Hard Off) -->
+            <div class="power-btn-card">
+              <div>
+                <div class="power-btn-card-title" style="color: #ef4444;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                  </svg>
+                  Force Power Off (Hold 5s)
+                </div>
+                <div class="power-btn-card-desc" style="margin-top: 6px;">
+                  Simulates holding the power button for 5 seconds. Immediately cuts power. Unsaved data may be lost.
+                </div>
+              </div>
+              <button class="btn btn-danger" id="pwrHoldBtn">Force Immediate Off</button>
+            </div>
+          </div>
+
+          <!-- Chassis UID LED Control Section -->
+          <div class="card" style="margin-top: 20px;">
+            <div class="card-header">
+              <div class="card-title">Chassis Unit Identification (UID) LED</div>
+              <span class="badge badge-info">Chassis Location</span>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                <div style="max-width: 600px;">
+                  <p class="card-text">
+                    The UID LED illuminates a vivid blue indicator light on both the front drive cage and the rear I/O panel to help locate this physical server in a rack datacenter environment.
+                  </p>
+                  <p class="card-text" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                    Polled automatically every 5 seconds. Current Status: <strong id="pwrUidStatusDetail" style="color: #38bdf8;">OFF</strong>
+                  </p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <button class="btn btn-outline" id="pwrUidToggleBtn">
+                    <span class="uid-indicator-dot"></span>
+                    <span id="pwrUidBtnText">Toggle UID Light</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB: iLO WEB GUI (BRIDGE) ==================== -->
+        <section class="tab-pane" id="tab-webgui">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">iLO Web Interface</h1>
+              <p class="tab-subtitle">Access original HP iLO web portal in your browser via local high-speed bridge</p>
+            </div>
+            <div>
+              <button class="btn btn-primary" id="openExternalWebBtn">Open in Browser</button>
+            </div>
+          </div>
+
+          <div class="card" style="max-width: 720px; margin: 20px auto 0;">
+            <div class="card-header">
+              <div class="card-title">Browser Access</div>
+              <span class="badge badge-success">Bridge Active</span>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 16px;">
+              <p class="card-text">
+                The iLO web interface is opened directly in your default browser (Edge, Chrome, Firefox) for maximum performance and security.
+              </p>
+
+              <div class="browser-launch-box" style="padding: 20px; background: var(--bg-card-sub); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); text-align: center;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">Local TLS Bridge Address:</div>
+                <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 16px;">
+                  <span class="mono" id="webguiProxyUrl" style="font-size: 14px; font-weight: 600; padding: 6px 12px; background: #000; border: 1px solid var(--border-subtle); border-radius: 4px; color: #fff;">http://127.0.0.1:8089</span>
+                  <button class="btn btn-secondary btn-sm" id="copyProxyUrlBtn">Copy URL</button>
+                </div>
+                <button class="btn btn-primary btn-lg" id="launchBrowserWebBtn" style="padding: 12px 24px; font-size: 14px; font-weight: 700;">
+                  Open Web Interface in Browser
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB: PROFILES ==================== -->
+        <section class="tab-pane" id="tab-profiles">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">Server Profiles</h1>
+              <p class="tab-subtitle">Manage saved HP ProLiant servers and connect with one click</p>
+            </div>
+            <div>
+              <button class="btn btn-primary btn-sm" id="addProfileBtn">+ Add Server</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <div class="profiles-grid" id="profilesGrid">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB: SYSTEM LOGS ==================== -->
+        <section class="tab-pane" id="tab-logs">
+          <div class="tab-header">
+            <div>
+              <h1 class="tab-title">System Logs & Terminal</h1>
+              <p class="tab-subtitle">Real-time background service logs, TLS 1.0 bridge output, and console launcher traces</p>
+            </div>
+            <div class="log-service-chips">
+              <div class="service-chip" id="chipBackend">
+                <span class="chip-dot chip-dot-online"></span>
+                <span class="chip-name">Backend</span>
+                <span class="chip-port">:5050</span>
+              </div>
+              <div class="service-chip" id="chipBridge">
+                <span class="chip-dot chip-dot-online"></span>
+                <span class="chip-name">TLS Bridge</span>
+                <span class="chip-port">:8443</span>
+              </div>
+              <div class="service-chip" id="chipProxy">
+                <span class="chip-dot chip-dot-online"></span>
+                <span class="chip-name">Web Proxy</span>
+                <span class="chip-port">:8089</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="terminal-card">
+            <!-- Toolbar -->
+            <div class="terminal-toolbar">
+              <div class="terminal-filters">
+                <div class="filter-group">
+                  <label for="logLevelSelect" class="filter-label">Level:</label>
+                  <select id="logLevelSelect" class="terminal-select">
+                    <option value="ALL">All Levels</option>
+                    <option value="INFO">INFO</option>
+                    <option value="OK">OK</option>
+                    <option value="WARN">WARN</option>
+                    <option value="ERROR">ERROR</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label for="logSourceSelect" class="filter-label">Source:</label>
+                  <select id="logSourceSelect" class="terminal-select">
+                    <option value="ALL">All Sources</option>
+                    <option value="BACKEND">BACKEND</option>
+                    <option value="BRIDGE">BRIDGE</option>
+                    <option value="CONSOLE">CONSOLE</option>
+                    <option value="API">API</option>
+                    <option value="SYSTEM">SYSTEM</option>
+                  </select>
+                </div>
+
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="logSearchInput" class="terminal-search-input" placeholder="Search log entries...">
+                  <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear Search">&times;</button>
+                </div>
+              </div>
+
+              <div class="terminal-actions">
+                <span class="log-count-badge" id="logCountDisplay">0 logs</span>
+                <button type="button" class="btn btn-secondary btn-sm" id="autoScrollToggleBtn" title="Toggle Auto Scroll">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <polyline points="19 12 12 19 5 12"></polyline>
+                  </svg>
+                  <span id="autoScrollLabel">Auto-Scroll: ON</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="copyLogsBtn" title="Copy all visible logs">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="clearLogsBtn" title="Clear log output">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  <span>Clear</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Terminal Output Window -->
+            <div class="terminal-window" id="terminalLogWindow">
+              <div class="terminal-welcome-msg">
+                <span class="tw-cyan">[SYSTEM]</span> iLO Suite Desktop active.<br>
+                <span class="tw-muted">Listening on 127.0.0.1:5050 | Monitoring TLS 1.0 Bridge & Console launcher processes...</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Add/Edit Profile Modal -->
+  <div class="modal-overlay" id="profileModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="profileModalTitle">Add Server Profile</div>
+        <button class="modal-close" id="closeProfileModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="profileForm">
+          <input type="hidden" id="profId">
+          <div class="form-group">
+            <label for="profName">Profile Name</label>
+            <input type="text" id="profName" class="input" placeholder="e.g. DL380 G7 - ESXi Host" required>
+          </div>
+          <div class="grid-2col">
+            <div class="form-group">
+              <label for="profHost">iLO IP / Hostname</label>
+              <input type="text" id="profHost" class="input" placeholder="192.168.1.150" required>
+            </div>
+            <div class="form-group">
+              <label for="profPort">Port</label>
+              <input type="number" id="profPort" class="input" value="443">
+            </div>
+          </div>
+          <div class="grid-2col">
+            <div class="form-group">
+              <label for="profUser">Username</label>
+              <input type="text" id="profUser" class="input" value="Administrator" required>
+            </div>
+            <div class="form-group">
+              <label for="profPass">Password</label>
+              <input type="password" id="profPass" class="input" placeholder="Password">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="profGen">iLO Generation</label>
+            <select id="profGen" class="input select">
+              <option value="ilo3" selected>HP iLO 3 (ProLiant G7)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="profNotes">Notes / Rack Location</label>
+            <textarea id="profNotes" class="input textarea" rows="2" placeholder="e.g. Rack 2, RU 14"></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelProfileBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+  <script src="app.js"></script>
+</body>
+</html>

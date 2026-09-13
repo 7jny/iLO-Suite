@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+venv/
+.venv/
+
+# Java
+*.class
+
+# Logs & Temporary
+*.log
+scratch/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
